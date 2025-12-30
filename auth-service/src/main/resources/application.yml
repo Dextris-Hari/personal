@@ -1,18 +1,18 @@
 server:
   port: 8081
   servlet:
-    context-path: /auth
+    context-path: /gm
 
 logging:
   pattern:
-    console: '%d{dd-MM-yyyy HH:mm:ss.SSS} %magenta([%thread]) %highlight(%-5level) [spring-boot-jwt-demo] %logger.%M %L - %msg%n'
+    console: '%d{dd-MM-yyyy HH:mm:ss.SSS} %magenta([%thread]) %highlight(%-5level) [auth-service] %logger.%M %L - %msg%n'
 
 spring:
   application:
     name: auth-service
 
   datasource:
-    url: jdbc:mysql://localhost:3306/playing?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/gm_users?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -20,11 +20,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update               # <-- ensure this key is here
-#    properties:
-#      hibernate:
-#        dialect: org.hibernate.dialect.MySQL8Dialect
-
+      ddl-auto: update
   main:
     allow-circular-references: true
 
@@ -33,4 +29,3 @@ navate:
     jwtExpirationMs: 60000
     jwtRefreshExpirationMs: 240000
     jwtSecret: 5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
-    otp-expiration-ms: 300000

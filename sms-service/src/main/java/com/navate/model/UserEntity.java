@@ -17,6 +17,8 @@ public class UserEntity {
     private String username;
     @Column(name = "password", unique = true)
     private String password; // bcrypt hashed
+    @Column(name = "mobile_number", unique = true)
+    private String mobileNumber; // <-- added field
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "tbl_user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)

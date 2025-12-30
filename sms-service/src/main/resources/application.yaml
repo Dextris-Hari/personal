@@ -21,9 +21,7 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update               # <-- ensure this key is here
-  #    properties:
-  #      hibernate:
-  #        dialect: org.hibernate.dialect.MySQL8Dialect
+
 
   main:
     allow-circular-references: true
@@ -34,3 +32,10 @@ navate:
     jwtRefreshExpirationMs: 240000
     jwtSecret: 5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
     otp-expiration-ms: 300000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true

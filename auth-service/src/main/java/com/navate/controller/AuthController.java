@@ -32,6 +32,7 @@ public class AuthController {
     //record AuthRequest(String username, String password){}
     //record AuthResponse(String token){}
     record RefreshRequest(String refreshToken){}
+    record LogoutRequest(String refreshToken){}
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest req) {
@@ -49,7 +50,9 @@ public class AuthController {
                             user.getUsername(), roles
                     );
 
-                   String refreshToken = jwtService.generateRefreshToken(user.getUsername());
+                    // Persist refresh token in DB and return the stored token string
+                    RefreshToken savedRt = refreshTokenService.createRefreshToken(user);
+                    String refreshToken = savedRt.getToken();
 
                     return ResponseEntity.ok(
                             new AuthResponse(accessToken,refreshToken)
@@ -79,6 +82,41 @@ public class AuthController {
         RefreshToken newRt = refreshTokenService.createRefreshToken(user);
 
         return ResponseEntity.ok(new RefreshTokenResponse(newAccess, newRt.getToken()));
+    }
+
+    /**
+     * Logout:
+     * - If Authorization Bearer access token present -> extract username and revoke all refresh tokens for that user.
+     * - Or accept JSON body with refreshToken to revoke its user.
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestBody(required = false) LogoutRequest body
+    ) {
+        // try Authorization header first
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            String token = authorization.substring(7);
+            try {
+                String username = jwtService.extractUsername(token);
+                repo.findByUsername(username).ifPresent(u -> refreshTokenService.deleteByUser(u));
+                return ResponseEntity.ok("Logged out");
+            } catch (Exception e) {
+                // fallthrough to check body
+            }
+        }
+
+        if (body != null && body.refreshToken() != null) {
+            var existing = refreshTokenService.findByToken(body.refreshToken());
+            if (existing != null) {
+                refreshTokenService.deleteByUser(existing.getUser());
+                return ResponseEntity.ok("Logged out");
+            } else {
+                return ResponseEntity.status(400).body("Invalid refresh token");
+            }
+        }
+
+        return ResponseEntity.badRequest().body("No token provided");
     }
 
 }
